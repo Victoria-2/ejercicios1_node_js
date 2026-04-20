@@ -1,43 +1,48 @@
 const loadFilms = document.querySelector(".loadFilms");
-// Definimos el contenedor donde se volcarán las películas
 const contenedorEstrenos = document.querySelector("#estrenos");
 
-// IMPORTANTE: Sin los paréntesis ()
+// CORRECCIÓN: Pasamos la función como referencia, SIN paréntesis ()
 loadFilms.addEventListener("click", cargarPeliculas);
 
 async function cargarPeliculas() {
   try {
-    console.log("Cargando películas..."); // Para que veas en la consola que el clic funciona
+    console.log("Intentando conectar con el servidor...");
 
-    // 1. Buscamos los datos en el servidor
     const respuesta = await fetch("http://localhost:3000/");
+
+    if (!respuesta.ok) throw new Error("No se pudo obtener la cartelera");
+
     const datos = await respuesta.json();
 
-    // 2. Limpiamos el contenido previo
-    contenedorEstrenos.innerHTML = "<h2>Cartelera Actualizada</h2>";
+    // Limpiamos el texto previo (el Lorem Ipsum)
+    contenedorEstrenos.innerHTML =
+      "<h2 class='titulo-seccion'>Estrenos <span>Disponibles</span></h2>";
 
-    // Creamos un contenedor para que use el estilo de Grid que definimos en el CSS
-    const lista = document.createElement("div");
-    lista.classList.add("grid-pelis");
+    // Creamos el contenedor Grid
+    const grid = document.createElement("div");
+    grid.className = "grid-pelis";
 
-    // 3. Recorremos el array
     datos.cartelera.forEach((peli) => {
-      const article = `
-                <article class="peli-card">
-                    <div style="padding: 20px;">
-                        <h4>${peli.titulo}</h4>
-                        <p>Precio: <strong>$${peli.precioEntrada}</strong></p>
-                    </div>
-                </article>
+      const article = document.createElement("article");
+      article.className = "peli-card";
+      article.innerHTML = `
+                <div style="padding: 20px;">
+                    <h4>${peli.titulo}</h4>
+                    <p>Precio: <strong>$${peli.precioEntrada}</strong></p>
+                </div>
             `;
-      lista.innerHTML += article;
+      grid.appendChild(article);
     });
 
-    contenedorEstrenos.appendChild(lista);
+    contenedorEstrenos.appendChild(grid);
+    console.log("¡Películas cargadas con éxito!");
   } catch (error) {
-    console.error("Error al cargar:", error);
-    alert(
-      "¡Error! Asegúrate de que el servidor de Node esté corriendo y tenga instalado CORS.",
-    );
+    console.error("Error detallado:", error);
+    contenedorEstrenos.innerHTML = `
+            <p class="status-msg" style="color: var(--rojo-principal);">
+                ⚠️ Error: No se pudo conectar al servidor.<br>
+                <small>Verifica que Node.js esté corriendo en el puerto 3000.</small>
+            </p>
+        `;
   }
 }
