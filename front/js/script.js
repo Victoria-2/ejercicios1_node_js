@@ -8,7 +8,7 @@ async function cargarPeliculas() {
   try {
     console.log("Intentando conectar con el servidor...");
 
-    const respuesta = await fetch("http://localhost:3000/");
+    const respuesta = await fetch("http://localhost:3000/peliculas");
 
     if (!respuesta.ok) throw new Error("No se pudo obtener la cartelera");
 
